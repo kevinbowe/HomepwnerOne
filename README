@@ -1,0 +1,11 @@
+July 6, 2011
+---
+This project is based on "The Big Nerd Ranch Guide: iPhone Programming Guide".  The original application was based on xCode 3.x. This version is based on xCode 4.  The functionality is identical and every effort has been made to generate the code exactly as implemented in the text.  Please read comments in the code.  They may be helpful.
+This project is the Homepwner application described in chapter 10 of the text.  This project spanns 6x chapters. The name of THIS project is HomepwnerOne.  The name has no other significance other than to distinguish it from the sample project in the text and on line.-- 
+This code has been deployed to an iPhone 4 and works sucessfully.
+
+---
+Initial PUSH - July 6, 2011
+
+This PUSH defines the initial foundation for the application. The following functionality is implemented:
+-- A UITableView is created and populated with randomly generated data.
