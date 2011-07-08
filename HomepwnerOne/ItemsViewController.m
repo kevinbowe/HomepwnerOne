@@ -22,6 +22,124 @@
 @implementation ItemsViewController
 
 
+- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    // Only allow rows showing possessions to move...
+    if([indexPath row] < [possessions count])
+        return YES;
+    return NO;
+    
+}
+
+
+- (NSIndexPath *)tableView:(UITableView *)tableView 
+    targetIndexPathForMoveFromRowAtIndexPath:(NSIndexPath *)sourceIndexPath 
+                            toProposedIndexPath:(NSIndexPath *)proposedDestinationIndexPath
+{
+    if ([proposedDestinationIndexPath row] < [possessions count])
+    {
+        // If we are moving to a row that currently is showing a possession,
+        // then we return the row the user wanted to move to...
+        return proposedDestinationIndexPath;
+    }
+    else
+    {
+        // We get here if we are trying to move a row to under the "Add New Item..."
+        // row, have the moving row go ine row above it insted...
+        NSIndexPath *betterIndexPath =
+        [NSIndexPath indexPathForRow:[possessions count] - 1 inSection:0];
+        return betterIndexPath;
+    }
+}
+
+
+- (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if ([self isEditing] && [indexPath row] == [possessions count])
+    {
+        // The last row during editing will show an insert style nutton...
+        return UITableViewCellEditingStyleInsert;
+    }
+    // All other rows remain deleteable...
+    return UITableViewCellEditingStyleDelete;
+}
+
+
+- (void)setEditing:(BOOL)flag /*editing*/ animated:(BOOL)animated
+{
+    // Always call super implementation of this method, it needs to do work...
+    [super setEditing:flag animated:animated];
+    
+    // You need to insert/remove a new row in to table view...
+    if (flag)
+    {
+        // If entering edit mode, we add another row to our table view...
+        NSIndexPath *indexPath = 
+            [NSIndexPath indexPathForRow:[possessions count]  inSection:0];
+        NSArray *paths = [NSArray arrayWithObject:indexPath];
+        [[self tableView] insertRowsAtIndexPaths:paths withRowAnimation:UITableViewRowAnimationLeft];
+    }
+    else
+    {
+        // If leaving edit mode, we remove last row from table view...
+        NSIndexPath *indexPath =
+            [NSIndexPath indexPathForRow:[possessions count] inSection:0];
+        NSArray *paths = [NSArray arrayWithObject:indexPath];
+        
+        [[self tableView] deleteRowsAtIndexPaths:paths withRowAnimation:UITableViewRowAnimationFade];
+    }
+}
+
+
+- (void)tableView:(UITableView *)tableView 
+        moveRowAtIndexPath:(NSIndexPath *)fromIndexPath /*sourceIndexPath*/ 
+            toIndexPath:(NSIndexPath *)toIndexPath /*destinationIndexPath*/
+{
+    // Get pointer to object being moved...
+    Possession *p = [possessions objectAtIndex:[fromIndexPath row]];
+    
+    // Retain p so that it is not deallocated when oit is removed from the array...
+    [p retain];
+        // Retain count of p is now 2...
+    
+    // Remove p from our array, it is automatically sent release...
+    [possessions removeObjectAtIndex:[fromIndexPath row]];
+    
+    // Re-insert p into array at new location, it is automatically retained...
+    [possessions insertObject:p atIndex:[toIndexPath row]];
+        // Retain count is now 2...
+    
+    // Release p...
+    [p release];
+        // Retain count of p is now 1
+}
+
+
+
+- (void)tableView:(UITableView *)tableView 
+            commitEditingStyle:(UITableViewCellEditingStyle)editingStyle 
+             forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    // If the table view is asking to commit a delete command...
+    if (editingStyle == UITableViewCellEditingStyleDelete)
+    {
+        // We remove the row being deleted from the possessions array...
+        [possessions removeObjectAtIndex:[indexPath row]];
+        
+        // We also remove that row from the table view with an animation...
+        [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]
+                         withRowAnimation:UITableViewRowAnimationFade];
+    }
+    else if (editingStyle == UITableViewCellEditingStyleInsert)
+    {
+        // If the editing stlye of the row was insertion,
+        // we add a new possion object and new row to the table view...
+        [possessions addObject:[Possession randomPossession]];
+        [tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationLeft];
+    }
+}
+
+
 - (void)editingButtonPressed:(id)sender
 {
     // If we are currently inediting mode...
@@ -108,7 +226,7 @@
 {
     // Check for a resuable cell first, use that if it exists...
     UITableViewCell *cell =
-    [tableView dequeueReusableCellWithIdentifier:@"UITableViewCell"];
+        [tableView dequeueReusableCellWithIdentifier:@"UITableViewCell"];
     
     // If there is no reusable cell of this type, create a new one...
     if (!cell){
@@ -127,18 +245,37 @@
 //    [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault 
 //                            reuseIdentifier:@"UITableViewCell"] autorelease];
     
+    // If the table view is filling a row with a possession in it, do as normal...
+    if([indexPath row] < [possessions count])
+    {
+        Possession *p = [possessions objectAtIndex:[indexPath row]];
+        [[cell textLabel] setText:[p description]];
+    }
+    else
+    {
+        // Otherwise, if we are editing we have one extra row...
+        [[cell textLabel] setText:@"Add New Item..."];
+    }
+    
+    
     // Set the text on the cell with the description of the possession
     // that is at the nth index of possessions, where n = row this cell
     // will appear in on the tableview...
-    Possession *p = [possessions objectAtIndex:[indexPath row]];
-    [[cell textLabel] setText:[p description]];
+//    Possession *p = [possessions objectAtIndex:[indexPath row]];
+//    [[cell textLabel] setText:[p description]];
     return cell;
 }
 
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return [possessions count];
+    int numberOfRows = [possessions count];
+    
+    // If we are editiing, we will have one more row than we have possessions...
+    if ([self isEditing])
+        numberOfRows++;
+    return numberOfRows;
+
 }
 
 
