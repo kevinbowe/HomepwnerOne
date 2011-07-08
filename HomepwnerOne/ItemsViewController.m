@@ -21,6 +21,89 @@
 
 @implementation ItemsViewController
 
+
+- (void)editingButtonPressed:(id)sender
+{
+    // If we are currently inediting mode...
+    if([self isEditing])
+    {
+        // Change text of button to inform user of state...
+        [sender setTitle:@"Edit" forState:UIControlStateNormal];
+        
+        // Turn Off editing mode...
+        [self setEditing:NO animated:YES];
+    }
+    else
+    {
+        // Change text of button to inform user of state...
+        [sender setTitle:@"Done" forState:UIControlStateNormal];
+        
+        // Enter editing mode...
+        [self setEditing:YES animated:YES];
+    }
+}
+
+
+- (UIView *)headerView
+{
+    if (headerView)
+        return headerView;
+    
+    // Create a UIButton object, simple rounded rec style...
+    UIButton *editButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    
+    // Set the title of this button to "Edit"...
+    [editButton setTitle:@"Edit" forState:UIControlStateNormal];
+    
+    // How wide is the screen?...
+    float w = [[UIScreen mainScreen] bounds].size.width;
+    
+    // Create a rectangle for the button...
+    CGRect editButtonFrame = CGRectMake(8.0, 8.0, w - 18.0, 30);
+    [editButton setFrame:editButtonFrame];
+    
+    // When this button is tapped, send the message
+    // editingButtonPressed: to this instance of ItemsViewController...
+    [editButton addTarget:self 
+                   action:@selector(editingButtonPressed:) 
+         forControlEvents:UIControlEventTouchUpInside];
+    
+    // Create a rectangle for the headerView that will contain the button...
+    CGRect headerViewFrame = CGRectMake(0, 0, w, 48);
+    headerView = [[UIView alloc] initWithFrame:headerViewFrame];
+    
+    // Add buttion to the headerView's view hierarchy...
+    [headerView addSubview:editButton];
+    
+    return headerView;
+    
+}
+
+
+/*
+ NOTE: This method must be implemented BELOW the - (UIView *)headerView method above or warnings
+    are issued by xCode and the compiler.  This is caused because 'headerView' is not initially 
+    defined  by the compiler or xCode. The application WILL build and run normally without moving 
+    the code.  The warning is simply a nuisance that can be resolved by moving the code.  
+ */
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
+	return [self headerView];
+}
+
+
+/*
+ NOTE: This method must be implemented BELOW the - (UIView *)headerView method above or warnings  
+    are issued by xCode and the compiler.  This is caused because 'headerView' is not initially 
+    defined  by the compiler or xCode. The application WILL build and run normally without moving 
+    the code.  The warning is simply a nuisance that can be resolved by moving the code.  
+ */
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+    return [[self headerView] frame].size.height;
+}
+
+
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     // Check for a resuable cell first, use that if it exists...

@@ -13,7 +13,7 @@
 @interface HomepwnerOneAppDelegate : NSObject <UIApplicationDelegate> {
 
     UIWindow *window;
-    ItemsViewController *itemsViewContoller;
+    ItemsViewController *itemsViewController;
 }
 
 @property (nonatomic, retain) IBOutlet UIWindow *window;

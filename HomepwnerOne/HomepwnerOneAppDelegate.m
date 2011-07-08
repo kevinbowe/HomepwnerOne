@@ -30,10 +30,10 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     // Create a ItemsViewController...
-    itemsViewContoller = [[ItemsViewController alloc] init];
+    itemsViewController = [[ItemsViewController alloc] init];
     
     // Place ItemsViewController's table view in the window hierarchy...
-    [window setRootViewController:itemsViewContoller];
+    [window setRootViewController:itemsViewController];
     
     // We won't release itemsViewController here, as we have an
     // instance variable that points to it as well, and therefore,
